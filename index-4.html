@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkillBridge Europe</title>
+<meta name="description" content="Check your path to work in another European country.">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f8fb;color:#122033;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1120px;margin:auto;padding:0 18px}.nav{height:72px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;font-size:20px;display:flex;gap:10px;align-items:center}.mark{background:#2457e6;color:#fff;width:34px;height:34px;border-radius:10px;display:grid;place-items:center}
+.badge{font-size:12px;color:#607086;background:#fff;border:1px solid #dfe6ee;padding:7px 10px;border-radius:99px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:55px;align-items:center;padding:65px 0 75px}
+.eyebrow,.label{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#2457e6}.hero h1{font-size:clamp(40px,6vw,70px);line-height:.99;letter-spacing:-3px;margin:15px 0 20px}.lead{font-size:18px;line-height:1.6;color:#607086;max-width:620px}
+.card{background:#fff;border:1px solid #dfe6ee;border-radius:20px;padding:24px;box-shadow:0 12px 35px rgba(18,32,51,.05)}h2{margin-top:0}
+label{display:block;font-size:13px;font-weight:700;color:#34445a;margin:14px 0}select{display:block;width:100%;margin-top:7px;padding:13px;border:1px solid #cfd8e4;border-radius:11px;background:#fff;font-size:15px;color:#122033}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}button{width:100%;border:0;background:#2457e6;color:white;padding:15px;border-radius:11px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}.tiny{font-size:11px;text-align:center;color:#7b899a}
+.result{padding-bottom:70px}.resultTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.resultTop h2{margin:7px 0;font-size:30px}.score{width:88px;height:88px;border:8px solid #dbe4ff;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:25px;color:#2457e6}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.card h3{margin:8px 0;font-size:19px}.card p{color:#607086;line-height:1.55}.card ul{list-style:none;padding:0;color:#43536a;line-height:2}
+a{color:#2457e6;text-decoration:none;font-weight:700}.plan{margin-top:15px;display:grid;grid-template-columns:.8fr 1.2fr;gap:20px}.plan ol{margin:0;line-height:2;color:#43536a}.notice{grid-column:1/-1;border-top:1px solid #dfe6ee;padding-top:14px;color:#607086;font-size:13px}
+.sources{padding:16px 2px;display:flex;gap:9px;font-size:13px;color:#607086}footer{border-top:1px solid #dfe6ee;padding:28px 0 45px;color:#607086;font-size:13px;display:flex;justify-content:space-between}
+@media(max-width:780px){.hero{grid-template-columns:1fr;gap:30px;padding:38px 0 55px}.grid,.plan{grid-template-columns:1fr}footer{flex-direction:column;gap:15px}.hero h1{letter-spacing:-2px}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="nav"><div class="brand"><span class="mark">S</span>SkillBridge</div><span class="badge">Europe • MVP</span></header>
+<section class="hero">
+<div><div class="eyebrow">SKILLS WITHOUT BORDERS</div><h1>Can your profession work in another European country?</h1><p class="lead">Check recognition, documents, language requirements and the next official step — in one place.</p></div>
+<div class="card">
+<h2>Check your path</h2>
+<label>Your profession<select id="profession"></select></label>
+<div class="two"><label>Qualified in<select id="from"></select></label><label>Want to work in<select id="to"></select></label></div>
+<button onclick="checkPath()">Check my path →</button><p class="tiny">Free screening • Official-source based • Not legal advice</p>
+</div>
+</section>
+<section id="result" class="result" hidden></section>
+<footer><div><b>SkillBridge Europe</b><br>A decision layer for professional mobility.</div><div>Construction • Healthcare • More professions coming next</div></footer>
+</div>
+<script>
+const countries=["Belgium","Netherlands","Germany","France"];
+const professions=[
+["Electrician","Construction"],["Plumber","Construction"],["Carpenter","Construction"],
+["Welder","Construction"],["Bricklayer","Construction"],["Roofer","Construction"],["Nurse","Healthcare"]
+];
+const source="https://europa.eu/youreurope/citizens/work/professional-qualifications/regulated-professions/index_en.htm";
+const p=document.getElementById("profession"),f=document.getElementById("from"),t=document.getElementById("to");
+professions.forEach(([n,c])=>p.add(new Option(n+" — "+c,n)));
+countries.forEach(c=>{f.add(new Option(c,c));t.add(new Option(c,c))});
+f.value="Belgium";t.value="Germany";p.value="Electrician";
+function checkPath(){
+ const profession=p.value,from=f.value,to=t.value,nurse=profession==="Nurse";
+ let recognition=nurse?"Likely required":"May be required";
+ let score=from===to?100:(nurse?45:65);
+ const docs=nurse?["Nursing qualification","Professional registration evidence","Identity document","Proof of experience"]:["Qualification certificate","Proof of professional experience","Identity document"];
+ document.getElementById("result").hidden=false;
+ document.getElementById("result").innerHTML=`
+ <div class="resultTop"><div><div class="eyebrow">YOUR SCREENING RESULT</div><h2>${profession}: ${from} → ${to}</h2></div><div class="score">${score}</div></div>
+ <div class="grid">
+ <div class="card"><span class="label">RECOGNITION</span><h3>${recognition}</h3><p>${nurse?"This occupation is treated as regulated for this MVP screening.":"The occupation is not assumed to be regulated; verify the exact activity and destination rules."}</p></div>
+ <div class="card"><span class="label">LANGUAGE</span><h3>Check target-country rules</h3><p>Language requirements can depend on the destination country, employer and profession.</p></div>
+ <div class="card"><span class="label">DOCUMENTS TO PREPARE</span><ul>${docs.map(x=>"<li>✓ "+x+"</li>").join("")}</ul></div>
+ <div class="card"><span class="label">NEXT OFFICIAL STEP</span><h3>Check the competent authority</h3><a href="${source}" target="_blank" rel="noopener">Open official EU guidance ↗</a></div>
+ </div>
+ <div class="card plan"><div><span class="label">ACTION PLAN</span><h2>Do these 4 things next</h2></div><ol>
+ <li>Confirm whether your exact occupation is regulated in the destination country.</li>
+ <li>Collect your qualification and experience evidence.</li>
+ <li>Check the competent authority and language requirements.</li>
+ <li>Apply through the official route before relying on this screening.</li>
+ </ol><p class="notice">⚠ This MVP is a screening tool, not legal advice. Rules must be verified against the current official source before a user acts on them.</p></div>
+ <div class="sources">Source: <a href="${source}" target="_blank" rel="noopener">Your Europe — Regulated professions ↗</a></div>`;
+ document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+</script>
+</body>
+</html>

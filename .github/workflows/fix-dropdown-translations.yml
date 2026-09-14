@@ -1,0 +1,33 @@
+name: Fix dropdown translations
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '.github/workflows/fix-dropdown-translations.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, 'Apply dropdown translations') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch dropdown translations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='const JOBT='
+          job='''const JOBT={ar:{Electrician:"كهربائي",Plumber:"سبّاك",Carpenter:"نجّار",Welder:"لحّام",Bricklayer:"بنّاء",Roofer:"عامل أسقف",Nurse:"ممرض/ممرضة","Care worker":"مقدم رعاية","Heavy truck driver":"سائق شاحنة ثقيلة","Software developer":"مطوّر برمجيات",Engineer:"مهندس","Cook / hospitality":"طبخ / ضيافة"},tr:{Electrician:"Elektrikçi",Plumber:"Tesisatçı",Carpenter:"Marangoz",Welder:"Kaynakçı",Bricklayer:"Duvar ustası",Roofer:"Çatı ustası",Nurse:"Hemşire","Care worker":"Bakım personeli","Heavy truck driver":"Ağır vasıta şoförü","Software developer":"Yazılım geliştirici",Engineer:"Mühendis","Cook / hospitality":"Aşçılık / konaklama"},de:{Electrician:"Elektriker",Plumber:"Installateur",Carpenter:"Tischler",Welder:"Schweißer",Bricklayer:"Maurer",Roofer:"Dachdecker",Nurse:"Pflegefachkraft","Care worker":"Pflegekraft","Heavy truck driver":"Berufskraftfahrer","Software developer":"Softwareentwickler",Engineer:"Ingenieur","Cook / hospitality":"Koch / Gastronomie"},fr:{Electrician:"Électricien",Plumber:"Plombier",Carpenter:"Menuisier",Welder:"Soudeur",Bricklayer:"Maçon",Roofer:"Couvreur",Nurse:"Infirmier/infirmière","Care worker":"Aide-soignant(e)","Heavy truck driver":"Conducteur de poids lourd","Software developer":"Développeur logiciel",Engineer:"Ingénieur","Cook / hospitality":"Cuisine / hôtellerie"},nl:{Electrician:"Elektricien",Plumber:"Loodgieter",Carpenter:"Timmerman",Welder:"Lasser",Bricklayer:"Metselaar",Roofer:"Dakdekker",Nurse:"Verpleegkundige","Care worker":"Zorgmedewerker","Heavy truck driver":"Vrachtwagenchauffeur","Software developer":"Softwareontwikkelaar",Engineer:"Ingenieur","Cook / hospitality":"Kok / horeca"},es:{Electrician:"Electricista",Plumber:"Fontanero",Carpenter:"Carpintero",Welder:"Soldador",Bricklayer:"Albañil",Roofer:"Techador",Nurse:"Enfermero/a","Care worker":"Cuidador/a","Heavy truck driver":"Conductor de camión pesado","Software developer":"Desarrollador de software",Engineer:"Ingeniero/a","Cook / hospitality":"Cocina / hostelería"},it:{Electrician:"Elettricista",Plumber:"Idraulico",Carpenter:"Falegname",Welder:"Saldatore",Bricklayer:"Muratore",Roofer:"Copritetto",Nurse:"Infermiere/a","Care worker":"Operatore assistenziale","Heavy truck driver":"Autista di mezzi pesanti","Software developer":"Sviluppatore software",Engineer:"Ingegnere","Cook / hospitality":"Cucina / ospitalità"},pl:{Electrician:"Elektryk",Plumber:"Hydraulik",Carpenter:"Stolarz",Welder:"Spawacz",Bricklayer:"Murarz",Roofer:"Dekarz",Nurse:"Pielęgniarz/Pielęgniarka","Care worker":"Opiekun/opiekunka","Heavy truck driver":"Kierowca ciężarówki","Software developer":"Programista",Engineer:"Inżynier","Cook / hospitality":"Kuchnia / gastronomia"},ro:{Electrician:"Electrician",Plumber:"Instalator sanitar",Carpenter:"Tâmplar",Welder:"Sudor",Bricklayer:"Zidar",Roofer:"Montator acoperișuri",Nurse:"Asistent medical","Care worker":"Îngrijitor","Heavy truck driver":"Șofer de camion greu","Software developer":"Dezvoltator software",Engineer:"Inginer","Cook / hospitality":"Bucătărie / ospitalitate"},uk:{Electrician:"Електрик",Plumber:"Сантехнік",Carpenter:"Столяр",Welder:"Зварювальник",Bricklayer:"Муляр",Roofer:"Покрівельник",Nurse:"Медсестра/медбрат","Care worker":"Працівник з догляду","Heavy truck driver":"Водій вантажівки","Software developer":"Розробник програмного забезпечення",Engineer:"Інженер","Cook / hospitality":"Кухня / готельний бізнес"},pt:{Electrician:"Eletricista",Plumber:"Canalizador",Carpenter:"Carpinteiro",Welder:"Soldador",Bricklayer:"Pedreiro",Roofer:"Profissional de coberturas",Nurse:"Enfermeiro/a","Care worker":"Cuidador/a","Heavy truck driver":"Motorista de pesados","Software developer":"Programador","Engineer":"Engenheiro/a","Cook / hospitality":"Cozinha / hotelaria"}};'''
+          if marker not in s:
+              s=s.replace('const names=',job+'const names=')
+          s=s.replace('function fillAll(){fill("nat",SRC);fill("res",SRC.concat(EU));fill("qual",SRC.concat(EU));fill("job",JOBS);fill("exp",EX);fill("to",EU);fill("lang",LANG);fill("stat",STATUS)}', 'function fillAll(){fill("nat",SRC);fill("res",SRC.concat(EU));fill("qual",SRC.concat(EU));fill("job",JOBS,x=>(JOBT[current]&&JOBT[current][x])||x);fill("exp",EX);fill("to",EU);fill("lang",LANG);fill("stat",STATUS)}')
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Apply dropdown translations [skip ci]'
+          git push
